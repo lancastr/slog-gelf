@@ -9,7 +9,6 @@ pub struct UdpDestination {
     socket: net::UdpSocket,
     destination: net::SocketAddr,
     chunk_size: ChunkSize,
-//    compression: MessageCompression,
 }
 
 impl UdpDestination {
@@ -31,20 +30,8 @@ impl UdpDestination {
             socket,
             destination,
             chunk_size,
-//            compression: MessageCompression::default(),
         })
     }
-
-//    /// Return the current set compression algorithm
-//    pub fn compression(&self) -> MessageCompression {
-//        self.compression
-//    }
-//
-//    /// Set the compression algorithm
-//    pub fn set_compression(&mut self, compression: MessageCompression) -> &mut Self {
-//        self.compression = compression;
-//        self
-//    }
 
     pub fn log(&self, message: &str) -> Result<(), io::Error> {
         let chunked_message = ChunkedMessage::new(

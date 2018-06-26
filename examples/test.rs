@@ -8,12 +8,8 @@ use slog::Drain;
 fn main() {
     let hostname = hostname::get_hostname().unwrap_or("unhostnamed".to_string());
 
-    let drain = slog_gelf::Gelf::new(&hostname, "192.168.0.101:12201")
-        .unwrap()
-        .fuse();
-    let drain = slog_async::Async::new(drain)
-        .build()
-        .fuse();
+    let drain = slog_gelf::Gelf::new(&hostname, "192.168.0.101:12201").unwrap().fuse();
+    let drain = slog_async::Async::new(drain).build().fuse();
     let log = slog::Logger::root(drain, o!("holy" => "shit"));
 
     info!(log,

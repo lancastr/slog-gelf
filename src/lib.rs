@@ -76,11 +76,10 @@ impl Drain for Gelf {
             column          : None,
             additional      : additional.0,
         };
+        let message_str = serde_json::to_string(&message)?;
 
-        let json_str = serde_json::to_string(&message)?;
-        self.destination.log(&json_str)?;
-
-        println!("{}", json_str);
+        let _ = self.destination.log(&message_str);
+        println!("{}", message_str);
 
         Ok(())
     }
