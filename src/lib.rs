@@ -79,7 +79,6 @@ impl Drain for Gelf {
         let message_str = serde_json::to_string(&message)?;
 
         let _ = self.destination.log(&message_str);
-        println!("{}", message_str);
 
         Ok(())
     }
