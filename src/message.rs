@@ -39,7 +39,7 @@ impl<'a> Serialize for Message<'a> {
 
         if let Some(ref level) = self.level {
             map.serialize_key("level")?;
-            map.serialize_value(level)?;
+            map.serialize_value(&(*level as u8))?;
         }
 
         if let Some(ref module) = self.module {

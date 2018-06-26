@@ -13,15 +13,6 @@ pub enum Level {
     Debug           = 7,
 }
 
-impl ::serde::Serialize for Level {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: ::serde::Serializer,
-    {
-        serializer.serialize_i32(*self as i32)
-    }
-}
-
 impl From<slog::Level> for Level {
     fn from(level: slog::Level) -> Level {
         match level {
