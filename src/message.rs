@@ -2,21 +2,21 @@ use serde::ser::{Serialize, Serializer, SerializeMap};
 
 use level::Level;
 
-pub struct Message {
+pub struct Message<'a> {
     pub version             : &'static str,
-    pub host                : String,
+    pub host                : &'a str,
     pub short_message       : String,
     pub full_message        : Option<String>,
     pub timestamp           : Option<f64>,
     pub level               : Option<Level>,
-    pub module              : Option<String>,
-    pub file                : Option<String>,
+    pub module              : Option<&'static str>,
+    pub file                : Option<&'static str>,
     pub line                : Option<u32>,
     pub column              : Option<u32>,
-    pub additional          : Vec<(String, String)>,
+    pub additional          : Vec<(&'static str, String)>,
 }
 
-impl Serialize for Message {
+impl<'a> Serialize for Message<'a> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: Serializer,
@@ -36,28 +36,34 @@ impl Serialize for Message {
             map.serialize_key("timestamp")?;
             map.serialize_value(timestamp)?;
         }
+
         if let Some(ref level) = self.level {
             map.serialize_key("level")?;
             map.serialize_value(level)?;
         }
+
         if let Some(ref module) = self.module {
             map.serialize_key("_module")?;
             map.serialize_value(module)?;
         }
+
         if let Some(ref file) = self.file {
             map.serialize_key("_file")?;
             map.serialize_value(file)?;
         }
+
         if let Some(ref line) = self.line {
             map.serialize_key("_line")?;
             map.serialize_value(line)?;
         }
+
         if let Some(ref column) = self.column {
             map.serialize_key("_column")?;
             map.serialize_value(column)?;
         }
+
         for (key, value) in self.additional.iter().rev() {
-            map.serialize_key(key)?;
+            map.serialize_key(&format!("_{}", key))?;
             map.serialize_value(value)?;
         }
 
