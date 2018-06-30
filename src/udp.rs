@@ -24,7 +24,6 @@ impl UdpDestination {
         };
 
         let socket = net::UdpSocket::bind(local)?;
-        socket.set_nonblocking(true)?;
 
         Ok(UdpDestination {
             socket,
