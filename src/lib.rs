@@ -8,6 +8,7 @@ extern crate chrono;
 extern crate rand;
 extern crate serde;
 extern crate serde_json;
+extern crate flate2;
 
 use std::io;
 use slog::{
@@ -17,6 +18,8 @@ use slog::{
     KV,
     Key,
 };
+use flate2::{write::GzEncoder, Compression};
+use std::io::prelude::*;
 
 use message::Message;
 use udp::UdpDestination;
@@ -76,9 +79,13 @@ impl Drain for Gelf {
             column          : None,
             additional      : additional.0,
         };
-        let message_str = serde_json::to_string(&message)?;
 
-        let _ = self.destination.log(&message_str);
+        let serialized = serde_json::to_vec(&message)?;
+
+        let mut e = GzEncoder::new(Vec::new(), Compression::default());
+        e.write_all(&serialized)?;
+        let compressed = e.finish()?;
+        let _ = self.destination.log(compressed);
 
         Ok(())
     }

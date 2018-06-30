@@ -33,10 +33,10 @@ impl UdpDestination {
         })
     }
 
-    pub fn log(&self, message: &str) -> Result<(), io::Error> {
+    pub fn log(&self, message: Vec<u8>) -> Result<(), io::Error> {
         let chunked_message = ChunkedMessage::new(
             self.chunk_size,
-            message.as_bytes().to_vec()
+            message
         )?;
 
         let sent_bytes = chunked_message
