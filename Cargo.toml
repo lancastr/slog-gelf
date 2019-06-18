@@ -3,6 +3,13 @@ name = "slog-gelf"
 version = "0.1.0"
 authors = ["Gleb Pomykalov <gleb@pomykalov.ru>", "hedgar <hedgar2017@gmail.com>"]
 build = "build.rs"
+description = "GELF drain for slog"
+keywords = ["log", "logging", "gelf", "graylog", "logstash", "slog"]
+categories = ["development-tools::debugging"]
+license = "MIT/Apache-2.0"
+homepage = "https://github.com/lancastr/slog-gelf"
+repository = "https://github.com/lancastr/slog-gelf"
+readme = "README.md"
 
 [dependencies]
 slog = "2.4.1"
