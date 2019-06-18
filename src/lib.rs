@@ -1,42 +1,36 @@
-mod message;
-mod level;
-mod udp;
 mod chunked;
+mod level;
+mod message;
+mod udp;
 
-extern crate slog;
 extern crate chrono;
+extern crate flate2;
 extern crate rand;
 extern crate serde;
 extern crate serde_json;
-extern crate flate2;
+extern crate slog;
 
-use std::io;
-use slog::{
-    Drain,
-    Record,
-    OwnedKVList,
-    KV,
-    Key,
-};
 use flate2::{write::GzEncoder, Compression};
+use slog::{Drain, Key, OwnedKVList, Record, KV};
+use std::io;
 use std::io::prelude::*;
 
+use chunked::ChunkSize;
 use message::Message;
 use udp::UdpDestination;
-use chunked::ChunkSize;
 
 static VERSION: &'static str = "1.1";
 
 pub struct Gelf {
-    source          : String,
-    destination     : UdpDestination,
+    source: String,
+    destination: UdpDestination,
 }
 
 impl Gelf {
     pub fn new(source: &str, destination: &str) -> Result<Self, io::Error> {
         let destination = UdpDestination::new(destination, ChunkSize::LAN)?;
 
-        Ok(Gelf{
+        Ok(Gelf {
             source: source.to_owned(),
             destination,
         })
@@ -56,28 +50,23 @@ impl Drain for Gelf {
     type Ok = ();
     type Err = io::Error;
 
-    fn log(
-        &self,
-        record: &Record,
-        values: &OwnedKVList,
-    ) -> Result<Self::Ok, Self::Err>
-    {
+    fn log(&self, record: &Record, values: &OwnedKVList) -> Result<Self::Ok, Self::Err> {
         let mut additional = KeyValueList(Vec::with_capacity(16));
         record.kv().serialize(record, &mut additional)?;
         values.serialize(record, &mut additional)?;
 
         let message = Message {
-            version         : VERSION,
-            host            : &self.source,
-            short_message   : record.msg().to_string(),
-            full_message    : None,
-            timestamp       : Some(timestamp()),
-            level           : Some(record.level().into()),
-            module          : Some(record.location().module),
-            file            : Some(record.location().file),
-            line            : Some(record.location().line),
-            column          : None,
-            additional      : additional.0,
+            version: VERSION,
+            host: &self.source,
+            short_message: record.msg().to_string(),
+            full_message: None,
+            timestamp: Some(timestamp()),
+            level: Some(record.level().into()),
+            module: Some(record.location().module),
+            file: Some(record.location().file),
+            line: Some(record.location().line),
+            column: None,
+            additional: additional.0,
         };
 
         let serialized = serde_json::to_vec(&message)?;

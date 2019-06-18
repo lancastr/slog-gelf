@@ -1,25 +1,25 @@
-use serde::ser::{Serialize, Serializer, SerializeMap};
+use serde::ser::{Serialize, SerializeMap, Serializer};
 
 use level::Level;
 
 pub struct Message<'a> {
-    pub version             : &'static str,
-    pub host                : &'a str,
-    pub short_message       : String,
-    pub full_message        : Option<String>,
-    pub timestamp           : Option<f64>,
-    pub level               : Option<Level>,
-    pub module              : Option<&'static str>,
-    pub file                : Option<&'static str>,
-    pub line                : Option<u32>,
-    pub column              : Option<u32>,
-    pub additional          : Vec<(&'static str, String)>,
+    pub version: &'static str,
+    pub host: &'a str,
+    pub short_message: String,
+    pub full_message: Option<String>,
+    pub timestamp: Option<f64>,
+    pub level: Option<Level>,
+    pub module: Option<&'static str>,
+    pub file: Option<&'static str>,
+    pub line: Option<u32>,
+    pub column: Option<u32>,
+    pub additional: Vec<(&'static str, String)>,
 }
 
 impl<'a> Serialize for Message<'a> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let mut map = serializer.serialize_map(Some(10 + self.additional.len()))?;
 

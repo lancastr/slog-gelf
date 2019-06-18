@@ -1,8 +1,5 @@
-use std::{
-    cmp,
-    io,
-};
 use rand;
+use std::{cmp, io};
 
 const CHUNK_SIZE_LAN: u16 = 8154;
 const CHUNK_SIZE_WAN: u16 = 1420;
@@ -30,27 +27,32 @@ impl ChunkSize {
 }
 
 pub struct ChunkedMessage {
-    chunk_size  : ChunkSize,
-    payload     : Vec<u8>,
-    num_chunks  : u8,
-    id          : ChunkedMessageId,
+    chunk_size: ChunkSize,
+    payload: Vec<u8>,
+    num_chunks: u8,
+    id: ChunkedMessageId,
 }
 
 impl ChunkedMessage {
-
     /// Several sanity checks are performed on construction:
     /// - chunk_size must be greater than 0
     /// - GELF allows for a maximum of 128 chunks per message
     pub fn new(chunk_size: ChunkSize, payload: Vec<u8>) -> Result<Self, io::Error> {
         if chunk_size.size() == 0 {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Chunk size cannot be zero"));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Chunk size cannot be zero",
+            ));
         }
 
         let size = chunk_size.size() as u64;
         let num_chunks = ((payload.len() as u64 + size as u64 - 1) / size) as u8;
 
         if num_chunks > 128 {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput,"Number of chunks exceeds 128"));
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Number of chunks exceeds 128",
+            ));
         }
 
         let id = ChunkedMessageId::random();
@@ -79,15 +81,15 @@ impl ChunkedMessage {
 }
 
 pub struct ChunkedMessageIterator<'a> {
-    chunk_num   : u8,
-    message     : &'a ChunkedMessage,
+    chunk_num: u8,
+    message: &'a ChunkedMessage,
 }
 
 impl<'a> ChunkedMessageIterator<'a> {
     fn new(msg: &'a ChunkedMessage) -> ChunkedMessageIterator {
         ChunkedMessageIterator {
-            chunk_num   : 0,
-            message     : msg,
+            chunk_num: 0,
+            message: msg,
         }
     }
 }
@@ -105,7 +107,10 @@ impl<'a> Iterator for ChunkedMessageIterator<'a> {
         // Set the chunks boundaries
         let chunk_size = self.message.chunk_size.size();
         let slice_start = (self.chunk_num as u32 * chunk_size as u32) as usize;
-        let slice_end = cmp::min(slice_start + chunk_size as usize,self.message.payload.len());
+        let slice_end = cmp::min(
+            slice_start + chunk_size as usize,
+            self.message.payload.len(),
+        );
 
         if self.message.num_chunks > 1 {
             // Chunk binary layout:
