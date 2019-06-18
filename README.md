@@ -1,5 +1,5 @@
 # `slog-gelf` - A [`GELF`][gelf] integration for [`slog-rs`][slog-rs]
-
+[![Build Status](https://travis-ci.org/lancastr/slog-gelf.svg?branch=master)](https://travis-ci.org/lancastr/slog-gelf)
 
 ### How to use
 
