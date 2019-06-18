@@ -7,19 +7,17 @@ extern crate slog_gelf;
 use slog::Drain;
 
 fn main() {
-    let hostname = hostname::get_hostname().unwrap_or("unhostnamed".to_string());
+    let hostname = hostname::get_hostname().unwrap();
 
-    let drain = slog_gelf::Gelf::new(&hostname, "192.168.0.101:12201")
+    let drain = slog_gelf::Gelf::new(&hostname, "192.168.0.1011:12201")
         .unwrap()
         .fuse();
     let drain = slog_async::Async::new(drain).build().fuse();
-    let log = slog::Logger::root(drain, o!("holy" => "shit"));
+    let log = slog::Logger::root(drain, o!("key" => "value"));
 
     info!(log,
-        "An example log message: {}{:X}", "0xDEAD", 0xBEEF;
-        "45342" => "34523",
-        "12323" => "53245",
-        "65462" => "84534",
-        "92423" => "23424",
+        "An example log message";
+        "k1" => "v1",
+        "k2" => "v2",
     );
 }
