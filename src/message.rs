@@ -1,4 +1,5 @@
 use serde::ser::{Serialize, SerializeMap, Serializer};
+use slog::Key;
 
 use level::Level;
 
@@ -13,7 +14,7 @@ pub struct Message<'a> {
     pub file: Option<&'static str>,
     pub line: Option<u32>,
     pub column: Option<u32>,
-    pub additional: Vec<(&'static str, String)>,
+    pub additional: Vec<(Key, String)>,
 }
 
 impl<'a> Serialize for Message<'a> {

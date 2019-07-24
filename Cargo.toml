@@ -1,6 +1,6 @@
 [package]
 name = "slog-gelf"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Gleb Pomykalov <gleb@pomykalov.ru>", "hedgar <hedgar2017@gmail.com>"]
 build = "build.rs"
 description = "GELF drain for slog"
