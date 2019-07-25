@@ -1,6 +1,6 @@
 [package]
 name = "slog-gelf"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Gleb Pomykalov <gleb@pomykalov.ru>", "hedgar <hedgar2017@gmail.com>"]
 build = "build.rs"
 description = "GELF drain for slog"
@@ -12,7 +12,7 @@ repository = "https://github.com/lancastr/slog-gelf"
 readme = "README.md"
 
 [dependencies]
-slog = "2.4.1"
+slog = "2.5"
 chrono = "0.4.6"
 rand = "0.6.5"
 serde = "1.0.92"

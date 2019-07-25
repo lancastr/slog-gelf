@@ -37,11 +37,11 @@ impl Gelf {
     }
 }
 
-pub struct KeyValueList(pub Vec<(&'static str, String)>);
+pub struct KeyValueList(pub Vec<(Key, String)>);
 
 impl slog::Serializer for KeyValueList {
     fn emit_arguments(&mut self, key: Key, val: &std::fmt::Arguments) -> slog::Result {
-        self.0.push((key as &'static str, format!("{}", val)));
+        self.0.push((key, format!("{}", val)));
         Ok(())
     }
 }
