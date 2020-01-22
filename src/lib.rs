@@ -1,6 +1,7 @@
 mod chunked;
 mod level;
 mod message;
+mod tcp;
 mod udp;
 
 extern crate chrono;
@@ -15,6 +16,7 @@ use std::io;
 
 use chunked::ChunkSize;
 use message::Message;
+use tcp::TcpDestination;
 use udp::UdpDestination;
 
 static VERSION: &str = "1.1";
@@ -40,6 +42,17 @@ impl Gelf<UdpDestination> {
 
     pub fn with_udp(source: &str, destination: &str) -> Result<Self, io::Error> {
         Self::new(source, destination)
+    }
+}
+
+impl Gelf<TcpDestination> {
+    pub fn with_tcp(source: &str, destination: &str) -> Result<Self, io::Error> {
+        let destination = TcpDestination::new(destination)?;
+
+        Ok(Gelf {
+            source: source.to_owned(),
+            destination,
+        })
     }
 }
 
