@@ -19,7 +19,7 @@ use chunked::ChunkSize;
 use message::Message;
 use udp::UdpDestination;
 
-static VERSION: &'static str = "1.1";
+static VERSION: &str = "1.1";
 
 pub struct Gelf {
     source: String,
@@ -80,6 +80,7 @@ impl Drain for Gelf {
     }
 }
 
+#[allow(clippy::let_and_return)]
 fn timestamp() -> f64 {
     let now = chrono::Utc::now();
     let milliseconds = (now.timestamp() as f64) + (now.timestamp_subsec_millis() as f64) / 1E3;

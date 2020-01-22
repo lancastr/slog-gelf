@@ -3,6 +3,7 @@ use slog::Key;
 
 use level::Level;
 
+#[derive(Debug)]
 pub struct Message<'a> {
     pub version: &'static str,
     pub host: &'a str,

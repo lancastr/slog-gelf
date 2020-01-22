@@ -13,10 +13,10 @@ impl UdpDestination {
         destination: T,
         chunk_size: ChunkSize,
     ) -> Result<Self, io::Error> {
-        let destination = destination.to_socket_addrs()?.nth(0).ok_or(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "Invalid destination",
-        ))?;
+        let destination = destination
+            .to_socket_addrs()?
+            .next()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "Invalid destination"))?;
 
         let local = match destination {
             net::SocketAddr::V4(_) => "0.0.0.0:0",
@@ -35,15 +35,10 @@ impl UdpDestination {
     pub fn log(&self, message: Vec<u8>) -> Result<(), io::Error> {
         let chunked_message = ChunkedMessage::new(self.chunk_size, message)?;
 
-        let sent_bytes = chunked_message
+        let sent_bytes: usize = chunked_message
             .iter()
-            .map(
-                |chunk| match self.socket.send_to(&chunk, self.destination) {
-                    Err(_) => 0,
-                    Ok(size) => size,
-                },
-            )
-            .fold(0_u64, |carry, size| carry + size as u64);
+            .map(|chunk| self.socket.send_to(&chunk, self.destination).unwrap_or(0))
+            .sum();
 
         if sent_bytes != chunked_message.len() {
             return Err(io::Error::new(
