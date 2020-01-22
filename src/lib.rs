@@ -19,12 +19,16 @@ use udp::UdpDestination;
 
 static VERSION: &str = "1.1";
 
-pub struct Gelf {
+pub struct Gelf<D: Destination> {
     source: String,
-    destination: UdpDestination,
+    destination: D,
 }
 
-impl Gelf {
+pub trait Destination {
+    fn log(&self, message: Vec<u8>) -> Result<(), io::Error>;
+}
+
+impl Gelf<UdpDestination> {
     pub fn new(source: &str, destination: &str) -> Result<Self, io::Error> {
         let destination = UdpDestination::new(destination, ChunkSize::LAN)?;
 
@@ -32,6 +36,10 @@ impl Gelf {
             source: source.to_owned(),
             destination,
         })
+    }
+
+    pub fn with_udp(source: &str, destination: &str) -> Result<Self, io::Error> {
+        Self::new(source, destination)
     }
 }
 
@@ -44,7 +52,7 @@ impl slog::Serializer for KeyValueList {
     }
 }
 
-impl Drain for Gelf {
+impl<D: Destination> Drain for Gelf<D> {
     type Ok = ();
     type Err = io::Error;
 

@@ -1,6 +1,7 @@
 use flate2::{write::GzEncoder, Compression};
 use std::{io, io::Write, net};
 
+use super::Destination;
 use chunked::{ChunkSize, ChunkedMessage};
 
 pub struct UdpDestination {
@@ -32,8 +33,10 @@ impl UdpDestination {
             chunk_size,
         })
     }
+}
 
-    pub fn log(&self, message: Vec<u8>) -> Result<(), io::Error> {
+impl Destination for UdpDestination {
+    fn log(&self, message: Vec<u8>) -> Result<(), io::Error> {
         let mut e = GzEncoder::new(Vec::new(), Compression::default());
         e.write_all(&message)?;
         let compressed = e.finish()?;
