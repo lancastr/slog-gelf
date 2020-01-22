@@ -1,4 +1,5 @@
-use std::{io, net};
+use flate2::{write::GzEncoder, Compression};
+use std::{io, io::Write, net};
 
 use chunked::{ChunkSize, ChunkedMessage};
 
@@ -33,7 +34,11 @@ impl UdpDestination {
     }
 
     pub fn log(&self, message: Vec<u8>) -> Result<(), io::Error> {
-        let chunked_message = ChunkedMessage::new(self.chunk_size, message)?;
+        let mut e = GzEncoder::new(Vec::new(), Compression::default());
+        e.write_all(&message)?;
+        let compressed = e.finish()?;
+
+        let chunked_message = ChunkedMessage::new(self.chunk_size, compressed)?;
 
         let sent_bytes: usize = chunked_message
             .iter()

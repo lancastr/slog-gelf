@@ -10,10 +10,8 @@ extern crate serde;
 extern crate serde_json;
 extern crate slog;
 
-use flate2::{write::GzEncoder, Compression};
 use slog::{Drain, Key, OwnedKVList, Record, KV};
 use std::io;
-use std::io::prelude::*;
 
 use chunked::ChunkSize;
 use message::Message;
@@ -70,11 +68,7 @@ impl Drain for Gelf {
         };
 
         let serialized = serde_json::to_vec(&message)?;
-
-        let mut e = GzEncoder::new(Vec::new(), Compression::default());
-        e.write_all(&serialized)?;
-        let compressed = e.finish()?;
-        let _ = self.destination.log(compressed);
+        let _ = self.destination.log(serialized);
 
         Ok(())
     }
