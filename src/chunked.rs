@@ -1,4 +1,4 @@
-use rand;
+use rand::{thread_rng, RngCore};
 use std::{cmp, io};
 
 const CHUNK_SIZE_LAN: u16 = 8154;
@@ -142,10 +142,7 @@ struct ChunkedMessageId([u8; 8]);
 impl<'a> ChunkedMessageId {
     fn random() -> ChunkedMessageId {
         let mut bytes = [0; 8];
-
-        for byte in &mut bytes {
-            *byte = rand::random();
-        }
+        thread_rng().fill_bytes(&mut bytes);
 
         ChunkedMessageId::from_bytes(bytes)
     }
