@@ -1,9 +1,9 @@
-use rand;
+use rand::{thread_rng, RngCore};
 use std::{cmp, io};
 
 const CHUNK_SIZE_LAN: u16 = 8154;
 const CHUNK_SIZE_WAN: u16 = 1420;
-static MAGIC_BYTES: &'static [u8; 2] = b"\x1e\x0f";
+static MAGIC_BYTES: &[u8; 2] = b"\x1e\x0f";
 
 /// Overhead per chunk is 12 bytes: magic(2) + id(8) + pos(1) + total (1)
 const CHUNK_OVERHEAD: u8 = 12;
@@ -17,8 +17,8 @@ pub enum ChunkSize {
 }
 
 impl ChunkSize {
-    pub fn size(&self) -> u16 {
-        match *self {
+    pub fn size(self) -> u16 {
+        match self {
             ChunkSize::LAN => CHUNK_SIZE_LAN,
             ChunkSize::WAN => CHUNK_SIZE_WAN,
             ChunkSize::Custom(size) => size,
@@ -66,11 +66,11 @@ impl ChunkedMessage {
     }
 
     /// Return the byte-length of the chunked message inclduing all overhead
-    pub fn len(&self) -> u64 {
+    pub fn len(&self) -> usize {
         if self.num_chunks > 1 {
-            self.payload.len() as u64 + self.num_chunks as u64 * CHUNK_OVERHEAD as u64
+            self.payload.len() + self.num_chunks as usize * CHUNK_OVERHEAD as usize
         } else {
-            self.payload.len() as u64
+            self.payload.len()
         }
     }
 
@@ -142,12 +142,9 @@ struct ChunkedMessageId([u8; 8]);
 impl<'a> ChunkedMessageId {
     fn random() -> ChunkedMessageId {
         let mut bytes = [0; 8];
+        thread_rng().fill_bytes(&mut bytes);
 
-        for b in 0..8 {
-            bytes[b] = rand::random();
-        }
-
-        return ChunkedMessageId::from_bytes(bytes);
+        ChunkedMessageId::from_bytes(bytes)
     }
 
     fn from_int(mut id: u64) -> ChunkedMessageId {

@@ -10,30 +10,37 @@ extern crate serde;
 extern crate serde_json;
 extern crate slog;
 
-use flate2::{write::GzEncoder, Compression};
 use slog::{Drain, Key, OwnedKVList, Record, KV};
 use std::io;
-use std::io::prelude::*;
 
 use chunked::ChunkSize;
 use message::Message;
 use udp::UdpDestination;
 
-static VERSION: &'static str = "1.1";
+static VERSION: &str = "1.1";
 
-pub struct Gelf {
+pub struct Gelf<D: Destination> {
     source: String,
-    destination: UdpDestination,
+    destination: D,
 }
 
-impl Gelf {
-    pub fn new(source: &str, destination: &str) -> Result<Self, io::Error> {
+pub trait Destination {
+    fn log(&self, message: Vec<u8>) -> Result<(), io::Error>;
+}
+
+impl Gelf<UdpDestination> {
+    pub fn with_udp(source: &str, destination: &str) -> Result<Self, io::Error> {
         let destination = UdpDestination::new(destination, ChunkSize::LAN)?;
 
         Ok(Gelf {
             source: source.to_owned(),
             destination,
         })
+    }
+
+    #[deprecated(since = "0.1.3", note="Use `Gelf::with_udp` method instead.")]
+    pub fn new(source: &str, destination: &str) -> Result<Self, io::Error> {
+        Self::with_udp(source, destination)
     }
 }
 
@@ -46,7 +53,7 @@ impl slog::Serializer for KeyValueList {
     }
 }
 
-impl Drain for Gelf {
+impl<D: Destination> Drain for Gelf<D> {
     type Ok = ();
     type Err = io::Error;
 
@@ -70,16 +77,13 @@ impl Drain for Gelf {
         };
 
         let serialized = serde_json::to_vec(&message)?;
-
-        let mut e = GzEncoder::new(Vec::new(), Compression::default());
-        e.write_all(&serialized)?;
-        let compressed = e.finish()?;
-        let _ = self.destination.log(compressed);
+        let _ = self.destination.log(serialized);
 
         Ok(())
     }
 }
 
+#[allow(clippy::let_and_return)]
 fn timestamp() -> f64 {
     let now = chrono::Utc::now();
     let milliseconds = (now.timestamp() as f64) + (now.timestamp_subsec_millis() as f64) / 1E3;

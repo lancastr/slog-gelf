@@ -1,7 +1,7 @@
 use slog;
 
 #[allow(dead_code)]
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Level {
     Emergency = 0,
     Alert = 1,
