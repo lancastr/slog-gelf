@@ -29,7 +29,7 @@ pub trait Destination {
 }
 
 impl Gelf<UdpDestination> {
-    pub fn new(source: &str, destination: &str) -> Result<Self, io::Error> {
+    pub fn with_udp(source: &str, destination: &str) -> Result<Self, io::Error> {
         let destination = UdpDestination::new(destination, ChunkSize::LAN)?;
 
         Ok(Gelf {
@@ -38,8 +38,9 @@ impl Gelf<UdpDestination> {
         })
     }
 
-    pub fn with_udp(source: &str, destination: &str) -> Result<Self, io::Error> {
-        Self::new(source, destination)
+    #[deprecated(since = "0.1.3", note="Use `Gelf::with_udp` method instead.")]
+    pub fn new(source: &str, destination: &str) -> Result<Self, io::Error> {
+        Self::with_udp(source, destination)
     }
 }
 
